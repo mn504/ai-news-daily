@@ -1,14 +1,24 @@
+import { z } from "zod";
 import { authRouter } from "./auth-router";
-import { createRouter, publicQuery } from "./middleware";
+import { articleRouter } from "./article-router";
+import { adRouter } from "./ad-router";
+import { statsRouter } from "./stats-router";
+import { createRouter, publicQuery, adminQuery } from "./middleware";
+import { scrapeNews } from "./scraper-service";
 
 export const appRouter = createRouter({
   ping: publicQuery.query(() => ({ ok: true, ts: Date.now() })),
   auth: authRouter,
+  article: articleRouter,
+  ad: adRouter,
+  stats: statsRouter,
 
-  // TODO: add feature routers here, e.g.
-  // todo: createRouter({
-  //   list: publicQuery.query(() => findTodos()),
-  // }),
+  scrape: adminQuery
+    .input(z.object({}).optional())
+    .mutation(async () => {
+      const result = await scrapeNews();
+      return result;
+    }),
 });
 
 export type AppRouter = typeof appRouter;
