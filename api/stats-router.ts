@@ -14,28 +14,19 @@ export const statsRouter = createRouter({
       draftArticles,
       categoryStats,
     ] = await Promise.all([
-      // 总文章数
-      db
-        .select({ count: sql<number>`count(*)` })
-        .from(articles),
-      // 今日文章数
+      db.select({ count: sql<number>`count(*)` }).from(articles),
       db
         .select({ count: sql<number>`count(*)` })
         .from(articles)
-        .where(
-          sql`DATE(${articles.createdAt}) = CURDATE()`
-        ),
-      // 已发布文章数
+        .where(sql`DATE(${articles.createdAt}) = CURRENT_DATE`),
       db
         .select({ count: sql<number>`count(*)` })
         .from(articles)
         .where(eq(articles.status, "published")),
-      // 草稿文章数
       db
         .select({ count: sql<number>`count(*)` })
         .from(articles)
         .where(eq(articles.status, "draft")),
-      // 分类统计
       db
         .select({
           category: articles.category,
