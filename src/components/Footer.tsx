@@ -63,7 +63,9 @@ export default function Footer() {
                 <span className="text-sm text-slate-400">免责声明</span>
               </li>
               <li>
-                <span className="text-sm text-slate-400">广告投放</span>
+                <Link to="/advertise" className="text-sm text-slate-400 hover:text-blue-400 transition-colors">
+                  广告投放
+                </Link>
               </li>
               <li>
                 <span className="text-sm text-slate-400">联系我们</span>

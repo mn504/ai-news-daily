@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ArticleCard from "@/components/ArticleCard";
 import AdSlot from "@/components/AdSlot";
+import { demoArticles } from "@/data/demoArticles";
 import { Loader2, ChevronRight, ExternalLink, Clock, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -38,10 +39,13 @@ export default function ArticleDetail() {
   const { id } = useParams<{ id: string }>();
   const articleId = parseInt(id ?? "0", 10);
 
-  const { data: article, isLoading } = trpc.article.getById.useQuery(
+  const { data: apiArticle, isLoading } = trpc.article.getById.useQuery(
     { id: articleId },
     { enabled: articleId > 0 }
   );
+
+  // Use API data if available, otherwise find in demo data
+  const article = apiArticle ?? demoArticles.find((a) => a.id === articleId);
 
   const { data: relatedData } = trpc.article.getByCategory.useQuery(
     {
@@ -52,7 +56,8 @@ export default function ArticleDetail() {
   );
 
   const relatedArticles =
-    relatedData?.filter((a) => a.id !== articleId).slice(0, 3) ?? [];
+    (relatedData?.filter((a) => a.id !== articleId).slice(0, 3) ??
+    demoArticles.filter((a) => a.category === article?.category && a.id !== articleId).slice(0, 3));
 
   if (isLoading) {
     return (

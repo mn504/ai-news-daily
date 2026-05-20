@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ArticleCard from "@/components/ArticleCard";
 import AdSlot from "@/components/AdSlot";
+import { demoArticles } from "@/data/demoArticles";
 import { Loader2, ChevronRight } from "lucide-react";
 
 const CATEGORY_META: Record<string, { label: string; description: string }> = {
@@ -37,6 +38,11 @@ export default function CategoryPage() {
     { category, limit: 30 },
     { enabled: !!category }
   );
+
+  // Use API data if available, otherwise filter demo data by category
+  const articles = (data && data.length > 0)
+    ? data
+    : demoArticles.filter((a) => a.category === category);
 
   const meta = CATEGORY_META[slug ?? ""] ?? {
     label: "AI资讯",
@@ -72,9 +78,9 @@ export default function CategoryPage() {
               <div className="flex justify-center py-20">
                 <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
               </div>
-            ) : data && data.length > 0 ? (
+            ) : articles.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                {data.map((article) => (
+                {articles.map((article) => (
                   <ArticleCard key={article.id} article={article} />
                 ))}
               </div>
