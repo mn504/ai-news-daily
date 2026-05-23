@@ -1,43 +1,34 @@
 import {
-  pgTable,
-  pgEnum,
+  mysqlTable,
+  mysqlEnum,
   serial,
   varchar,
   text,
   timestamp,
   boolean,
-} from "drizzle-orm/pg-core";
+  // int,
+  // bigint,
+} from "drizzle-orm/mysql-core";
 
-// Enums must be defined first in PG
-export const roleEnum = pgEnum("role", ["user", "admin"]);
-export const categoryEnum = pgEnum("category", [
-  "frontier",
-  "llm",
-  "application",
-  "investment",
-  "industry",
-]);
-export const statusEnum = pgEnum("status", ["published", "draft", "archived"]);
-
-export const users = pgTable("users", {
+export const users = mysqlTable("users", {
   id: serial("id").primaryKey(),
   unionId: varchar("unionId", { length: 255 }).notNull().unique(),
   name: varchar("name", { length: 255 }),
   email: varchar("email", { length: 320 }),
   avatar: text("avatar"),
-  role: roleEnum("role").default("user").notNull(),
-  createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt", { withTimezone: true })
+  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt")
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
-  lastSignInAt: timestamp("lastSignInAt", { withTimezone: true }).defaultNow().notNull(),
+  lastSignInAt: timestamp("lastSignInAt").defaultNow().notNull(),
 });
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-export const articles = pgTable("articles", {
+export const articles = mysqlTable("articles", {
   id: serial("id").primaryKey(),
   title: varchar("title", { length: 255 }).notNull(),
   summary: text("summary"),
@@ -45,22 +36,32 @@ export const articles = pgTable("articles", {
   sourceUrl: varchar("sourceUrl", { length: 500 }),
   sourceName: varchar("sourceName", { length: 100 }),
   imageUrl: varchar("imageUrl", { length: 500 }),
-  category: categoryEnum("category").default("frontier").notNull(),
-  publishedAt: timestamp("publishedAt", { withTimezone: true }).defaultNow().notNull(),
-  createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow().notNull(),
-  status: statusEnum("status").default("published").notNull(),
+  category: mysqlEnum("category", [
+    "frontier",
+    "llm",
+    "application",
+    "investment",
+    "industry",
+  ])
+    .default("frontier")
+    .notNull(),
+  publishedAt: timestamp("publishedAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  status: mysqlEnum("status", ["published", "draft", "archived"])
+    .default("published")
+    .notNull(),
 });
 
 export type Article = typeof articles.$inferSelect;
 export type InsertArticle = typeof articles.$inferInsert;
 
-export const adSlots = pgTable("adSlots", {
+export const adSlots = mysqlTable("adSlots", {
   id: serial("id").primaryKey(),
   slotId: varchar("slotId", { length: 50 }).notNull().unique(),
   name: varchar("name", { length: 100 }).notNull(),
   htmlCode: text("htmlCode"),
   isActive: boolean("isActive").default(false).notNull(),
-  updatedAt: timestamp("updatedAt", { withTimezone: true })
+  updatedAt: timestamp("updatedAt")
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),

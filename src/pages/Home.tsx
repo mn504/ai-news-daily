@@ -5,7 +5,6 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ArticleCard from "@/components/ArticleCard";
 import AdSlot from "@/components/AdSlot";
-import { demoArticles } from "@/data/demoArticles";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, Tag, Loader2, Newspaper } from "lucide-react";
 
@@ -17,19 +16,10 @@ const ALL_TAGS = [
 
 export default function Home() {
   const [page, setPage] = useState(1);
-
-  // Try API first, fall back to demo data
   const { data, isLoading } = trpc.article.list.useQuery({ page, limit: 12 });
   const { data: trendingData } = trpc.article.list.useQuery({ limit: 5 });
 
-  // Use API data if available, otherwise use demo data
-  const hasApiData = data && data.items && data.items.length > 0;
-  const articles = hasApiData ? data.items : demoArticles;
-  const articleCount = hasApiData ? data.total : demoArticles.length;
-  const trendingItems = (trendingData?.items && trendingData.items.length > 0)
-    ? trendingData.items.slice(0, 5)
-    : demoArticles.slice(0, 5);
-
+  const articles = data?.items ?? [];
   const featured = articles[0];
   const rest = articles.slice(1);
 
@@ -43,7 +33,7 @@ export default function Home() {
           <Newspaper className="w-5 h-5 text-blue-400" />
           <h1 className="text-lg font-semibold text-white">最新 AI 资讯</h1>
           <span className="text-sm text-slate-500">
-            共 {articleCount} 条
+            共 {data?.total ?? 0} 条
           </span>
         </div>
 
@@ -64,7 +54,7 @@ export default function Home() {
           {/* Articles Column */}
           <div className="lg:col-span-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-              {isLoading && rest.length === 0 ? (
+              {isLoading ? (
                 <div className="col-span-full flex justify-center py-20">
                   <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
                 </div>
@@ -76,7 +66,7 @@ export default function Home() {
             </div>
 
             {/* Load More */}
-            {!isLoading && data && data.items.length > 0 && page < data.totalPages && (
+            {!isLoading && data && page < data.totalPages && (
               <div className="flex justify-center mt-8">
                 <Button
                   variant="outline"
@@ -106,7 +96,7 @@ export default function Home() {
                 <h3 className="font-semibold text-white">热门排行</h3>
               </div>
               <div className="space-y-0">
-                {trendingItems.map((article, index) => (
+                {trendingData?.items.slice(0, 5).map((article, index) => (
                   <Link
                     key={article.id}
                     to={`/article/${article.id}`}

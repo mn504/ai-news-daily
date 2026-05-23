@@ -4,7 +4,6 @@ import CategoryPage from './pages/CategoryPage'
 import ArticleDetail from './pages/ArticleDetail'
 import SearchPage from './pages/SearchPage'
 import AdminPage from './pages/AdminPage'
-import AdvertisePage from './pages/AdvertisePage'
 import Login from "./pages/Login"
 import NotFound from "./pages/NotFound"
 
@@ -16,7 +15,6 @@ export default function App() {
       <Route path="/article/:id" element={<ArticleDetail />} />
       <Route path="/search" element={<SearchPage />} />
       <Route path="/admin" element={<AdminPage />} />
-      <Route path="/advertise" element={<AdvertisePage />} />
       <Route path="/login" element={<Login />} />
       <Route path="*" element={<NotFound />} />
     </Routes>

@@ -4,7 +4,6 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ArticleCard from "@/components/ArticleCard";
 import AdSlot from "@/components/AdSlot";
-import { demoArticles } from "@/data/demoArticles";
 import { Loader2, Search } from "lucide-react";
 
 export default function SearchPage() {
@@ -15,17 +14,6 @@ export default function SearchPage() {
     { q },
     { enabled: q.length > 0 }
   );
-
-  // Use API data if available, otherwise filter demo data locally
-  const results = (data && data.length > 0)
-    ? data
-    : (q.length > 0
-        ? demoArticles.filter(
-            (a) =>
-              a.title.toLowerCase().includes(q.toLowerCase()) ||
-              (a.summary ?? "").toLowerCase().includes(q.toLowerCase())
-          )
-        : []);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
@@ -48,9 +36,9 @@ export default function SearchPage() {
               <div className="flex justify-center py-20">
                 <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
               </div>
-            ) : results.length > 0 ? (
+            ) : data && data.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                {results.map((article) => (
+                {data.map((article) => (
                   <ArticleCard key={article.id} article={article} />
                 ))}
               </div>

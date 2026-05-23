@@ -1,5 +1,4 @@
 import { trpc } from "@/providers/trpc";
-import { demoAdSlots } from "@/data/demoArticles";
 
 interface AdSlotProps {
   slotId: string;
@@ -10,20 +9,22 @@ interface AdSlotProps {
 export default function AdSlot({ slotId, className = "", fallback }: AdSlotProps) {
   const { data } = trpc.ad.getBySlotId.useQuery({ slotId });
 
-  // Use API data if available, otherwise use demo data
-  const adData = data ?? demoAdSlots.find((s) => s.slotId === slotId);
-
-  if (!adData || !adData.isActive) {
+  if (!data || !data.isActive) {
     if (fallback) return <div className={className}>{fallback}</div>;
-    // Don't show placeholder — just render nothing
-    return null;
+    return (
+      <div
+        className={`bg-slate-900/50 border border-dashed border-slate-700 rounded-lg flex items-center justify-center text-slate-500 text-sm ${className}`}
+      >
+        <span className="px-2 py-1">广告位：{data?.name || slotId}</span>
+      </div>
+    );
   }
 
   return (
     <div className={className}>
       <div
         className="w-full"
-        dangerouslySetInnerHTML={{ __html: adData.htmlCode || "" }}
+        dangerouslySetInnerHTML={{ __html: data.htmlCode || "" }}
       />
     </div>
   );
