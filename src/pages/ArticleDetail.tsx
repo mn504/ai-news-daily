@@ -127,7 +127,7 @@ export default function ArticleDetail() {
                 <div className="flex items-center gap-4 text-sm text-slate-400">
                   <span className="flex items-center gap-1">
                     <Clock className="w-4 h-4" />
-                    {formatDate(article.publishedAt)}
+                    {article.publishedAt ? formatDate(article.publishedAt) : "未知时间"}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">

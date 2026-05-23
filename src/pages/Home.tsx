@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ArticleCard from "@/components/ArticleCard";
 import AdSlot from "@/components/AdSlot";
+import DateFilter from "@/components/DateFilter";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, Tag, Loader2, Newspaper } from "lucide-react";
 
@@ -16,25 +17,53 @@ const ALL_TAGS = [
 
 export default function Home() {
   const [page, setPage] = useState(1);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+
   const { data, isLoading } = trpc.article.list.useQuery({ page, limit: 12 });
   const { data: trendingData } = trpc.article.list.useQuery({ limit: 5 });
 
+  // Get available dates from articles
   const articles = data?.items ?? [];
-  const featured = articles[0];
-  const rest = articles.slice(1);
+  const availableDates = Array.from(new Set(articles
+    .filter((a) => a.publishedAt)
+    .map((a) => {
+      const d = new Date(a.publishedAt!);
+      return d.toISOString().split("T")[0];
+    }))).sort((a, b) => b.localeCompare(a));
+
+  // Filter by selected date
+  const filteredArticles = selectedDate
+    ? articles.filter((a) => {
+        if (!a.publishedAt) return false;
+        const d = new Date(a.publishedAt);
+        return d.toISOString().split("T")[0] === selectedDate;
+      })
+    : articles;
+
+  const featured = filteredArticles[0];
+  const rest = filteredArticles.slice(1);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
       <Header />
 
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
-        {/* Section Title */}
-        <div className="flex items-center gap-2 mb-6">
-          <Newspaper className="w-5 h-5 text-blue-400" />
-          <h1 className="text-lg font-semibold text-white">最新 AI 资讯</h1>
-          <span className="text-sm text-slate-500">
-            共 {data?.total ?? 0} 条
-          </span>
+        {/* Header Row: Title + Date Filter */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div className="flex items-center gap-2">
+            <Newspaper className="w-5 h-5 text-blue-400" />
+            <h1 className="text-lg font-semibold text-white">最新 AI 资讯</h1>
+            <span className="text-sm text-slate-500">
+              共 {data?.total ?? 0} 条
+            </span>
+          </div>
+
+          <DateFilter
+            availableDates={availableDates}
+            selectedDate={selectedDate}
+            onDateChange={setSelectedDate}
+            label="选择日期"
+          />
         </div>
 
         {/* Hero / Featured */}

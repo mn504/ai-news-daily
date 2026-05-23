@@ -360,7 +360,7 @@ function ArticlesTab() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-slate-400 text-xs">
-                        {new Date(article.publishedAt).toLocaleDateString("zh-CN")}
+                        {article.publishedAt ? new Date(article.publishedAt).toLocaleDateString("zh-CN") : "-"}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1">

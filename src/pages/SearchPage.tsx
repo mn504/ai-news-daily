@@ -44,7 +44,7 @@ export default function SearchPage() {
               </div>
             ) : q ? (
               <div className="text-center py-20">
-                <p className="text-slate-500">没有找到匹配 "{q}" 的文章</p>
+                <p className="text-slate-500">没有找到匹配 &quot;{q}&quot; 的文章</p>
               </div>
             ) : (
               <div className="text-center py-20">

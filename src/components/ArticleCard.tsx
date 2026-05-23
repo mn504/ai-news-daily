@@ -1,9 +1,16 @@
 import { Link } from "react-router";
-import { Clock, ArrowRight } from "lucide-react";
-import type { Article } from "@db/schema";
+import { Calendar, ArrowRight } from "lucide-react";
 
 interface ArticleCardProps {
-  article: Article;
+  article: {
+    id: number;
+    title: string;
+    summary: string | null;
+    imageUrl: string | null;
+    sourceName: string | null;
+    category: string;
+    publishedAt: string | Date | null;
+  };
   variant?: "default" | "featured" | "compact";
 }
 
@@ -23,17 +30,13 @@ const CATEGORY_COLORS: Record<string, string> = {
   industry: "bg-slate-500/10 text-slate-400 border-slate-500/20",
 };
 
-function formatTimeAgo(date: Date) {
-  const now = new Date();
-  const diff = now.getTime() - new Date(date).getTime();
-  const minutes = Math.floor(diff / 60000);
-  const hours = Math.floor(diff / 3600000);
-  const days = Math.floor(diff / 86400000);
-
-  if (minutes < 60) return `${minutes}分钟前`;
-  if (hours < 24) return `${hours}小时前`;
-  if (days < 7) return `${days}天前`;
-  return new Date(date).toLocaleDateString("zh-CN");
+function formatDateDisplay(date: string | Date | null | undefined): string {
+  if (!date) return "未知日期";
+  const d = typeof date === "string" ? new Date(date + "T00:00:00") : new Date(date);
+  return d.toLocaleDateString("zh-CN", {
+    month: "short",
+    day: "numeric",
+  });
 }
 
 export default function ArticleCard({ article, variant = "default" }: ArticleCardProps) {
@@ -57,8 +60,8 @@ export default function ArticleCard({ article, variant = "default" }: ArticleCar
               {CATEGORY_LABELS[article.category] || "AI资讯"}
             </span>
             <span className="flex items-center gap-1 text-xs text-slate-400">
-              <Clock className="w-3 h-3" />
-              {formatTimeAgo(article.publishedAt)}
+              <Calendar className="w-3 h-3" />
+              {typeof article.publishedAt === "string" ? article.publishedAt : formatDateDisplay(article.publishedAt)}
             </span>
           </div>
           <h2 className="text-xl sm:text-2xl font-bold text-white group-hover:text-blue-400 transition-colors line-clamp-2">
@@ -92,7 +95,10 @@ export default function ArticleCard({ article, variant = "default" }: ArticleCar
           <div className="flex items-center gap-2 mt-1.5">
             <span className="text-xs text-slate-500">{article.sourceName}</span>
             <span className="text-xs text-slate-600">|</span>
-            <span className="text-xs text-slate-500">{formatTimeAgo(article.publishedAt)}</span>
+            <span className="flex items-center gap-1 text-xs text-slate-500">
+              <Calendar className="w-3 h-3" />
+              {typeof article.publishedAt === "string" ? article.publishedAt : formatDateDisplay(article.publishedAt)}
+            </span>
           </div>
         </div>
       </Link>
@@ -126,8 +132,8 @@ export default function ArticleCard({ article, variant = "default" }: ArticleCar
         </p>
         <div className="flex items-center justify-between mt-3">
           <span className="flex items-center gap-1 text-xs text-slate-500">
-            <Clock className="w-3 h-3" />
-            {formatTimeAgo(article.publishedAt)}
+            <Calendar className="w-3 h-3" />
+            {typeof article.publishedAt === "string" ? article.publishedAt : formatDateDisplay(article.publishedAt)}
           </span>
           <span className="flex items-center gap-1 text-xs text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
             阅读 <ArrowRight className="w-3 h-3" />

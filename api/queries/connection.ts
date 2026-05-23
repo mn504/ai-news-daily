@@ -1,18 +1,16 @@
-import { drizzle } from "drizzle-orm/mysql2";
-import { env } from "../lib/env";
+import { drizzle } from "drizzle-orm/libsql";
+import { createClient } from "@libsql/client";
 import * as schema from "@db/schema";
-import * as relations from "@db/relations";
+import { join } from "path";
 
-const fullSchema = { ...schema, ...relations };
+const dbPath = process.env.DATABASE_PATH || join(process.cwd(), "data", "db.sqlite");
 
-let instance: ReturnType<typeof drizzle<typeof fullSchema>>;
+let db: ReturnType<typeof drizzle<typeof schema>>;
 
 export function getDb() {
-  if (!instance) {
-    instance = drizzle(env.databaseUrl, {
-      mode: "planetscale",
-      schema: fullSchema,
-    });
+  if (!db) {
+    const client = createClient({ url: `file:${dbPath}` });
+    db = drizzle(client, { schema });
   }
-  return instance;
+  return db;
 }

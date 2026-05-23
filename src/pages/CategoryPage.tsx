@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router";
 import { trpc } from "@/providers/trpc";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ArticleCard from "@/components/ArticleCard";
 import AdSlot from "@/components/AdSlot";
+import DateFilter from "@/components/DateFilter";
 import { Loader2, ChevronRight } from "lucide-react";
 
 const CATEGORY_META: Record<string, { label: string; description: string }> = {
@@ -32,11 +34,31 @@ const CATEGORY_META: Record<string, { label: string; description: string }> = {
 export default function CategoryPage() {
   const { slug } = useParams<{ slug: string }>();
   const category = slug as "frontier" | "llm" | "application" | "investment" | "industry";
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const { data, isLoading } = trpc.article.getByCategory.useQuery(
     { category, limit: 30 },
     { enabled: !!category }
   );
+
+  const articles = data ?? [];
+
+  // Get available dates for this category
+  const availableDates = Array.from(new Set(articles
+    .filter((a) => a.publishedAt)
+    .map((a) => {
+      const d = new Date(a.publishedAt!);
+      return d.toISOString().split("T")[0];
+    }))).sort((a, b) => b.localeCompare(a));
+
+  // Filter by selected date
+  const filteredArticles = selectedDate
+    ? articles.filter((a) => {
+        if (!a.publishedAt) return false;
+        const d = new Date(a.publishedAt);
+        return d.toISOString().split("T")[0] === selectedDate;
+      })
+    : articles;
 
   const meta = CATEGORY_META[slug ?? ""] ?? {
     label: "AI资讯",
@@ -57,12 +79,22 @@ export default function CategoryPage() {
           <span className="text-slate-300">{meta.label}</span>
         </nav>
 
-        {/* Category Header */}
+        {/* Category Header with Date Filter */}
         <div className="mb-8 p-6 rounded-2xl bg-slate-900 border border-slate-800">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-            {meta.label}
-          </h1>
-          <p className="text-slate-400">{meta.description}</p>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+                {meta.label}
+              </h1>
+              <p className="text-slate-400">{meta.description}</p>
+            </div>
+            <DateFilter
+              availableDates={availableDates}
+              selectedDate={selectedDate}
+              onDateChange={setSelectedDate}
+              label="选择日期"
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -72,9 +104,9 @@ export default function CategoryPage() {
               <div className="flex justify-center py-20">
                 <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
               </div>
-            ) : data && data.length > 0 ? (
+            ) : filteredArticles.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                {data.map((article) => (
+                {filteredArticles.map((article) => (
                   <ArticleCard key={article.id} article={article} />
                 ))}
               </div>

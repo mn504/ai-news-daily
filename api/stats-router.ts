@@ -23,7 +23,7 @@ export const statsRouter = createRouter({
         .select({ count: sql<number>`count(*)` })
         .from(articles)
         .where(
-          sql`DATE(${articles.createdAt}) = CURDATE()`
+          sql`DATE(${articles.createdAt}) = DATE('now')`
         ),
       // 已发布文章数
       db
